@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class ServiceController extends Controller
@@ -12,7 +13,8 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        //
+        $services = Service::all();
+        return response()->json($services, 200);
     }
 
     /**
@@ -20,7 +22,15 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'duration_minutes' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        $service = Service::create($request->all());
+        return response()->json($service, 201);
     }
 
     /**
@@ -28,7 +38,8 @@ class ServiceController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $service = Service::findOrFail($id);
+        return response()->json($service, 200);
     }
 
     /**
@@ -36,7 +47,9 @@ class ServiceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $service = Service::findOrFail($id);
+        $service->update($request->all());
+        return response()->json($service, 200);
     }
 
     /**
@@ -44,6 +57,9 @@ class ServiceController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $service = Service::findOrFail($id);
+        $service->delete();
+        return response()->json(null, 204);
     }
+
 }

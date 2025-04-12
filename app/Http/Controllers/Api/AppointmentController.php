@@ -43,7 +43,8 @@ class AppointmentController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $appointment = Appointment::findOrFail($id);
+        return response()->json($appointment,200);
     }
 
     /**
@@ -82,4 +83,26 @@ class AppointmentController extends Controller
             'appointment' => $appointment,
         ]);
     }
+
+    public function reschedule(Request $request, Appointment $appointment)
+    {
+        $this->authorize('reschedule', $appointment);
+
+        $request->validate([
+            'new_start_time' => 'required|date|after:now',
+            'new_end_time' => 'required|date|after:new_start_time',
+        ]);
+
+        $appointment->update([
+            'start_time' => $request->new_start_time,
+            'end_time' => $request->new_end_time,
+        ]);
+
+        return response()->json([
+            'message' => 'Appointment rescheduled successfully.',
+            'appointment' => $appointment,
+        ]);
+    }
+
+
 }
