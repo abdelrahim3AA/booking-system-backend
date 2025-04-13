@@ -37,7 +37,7 @@ class AppointmentPolicy
      */
     public function update(User $user, Appointment $appointment): bool
     {
-        return false;
+        return $user->id === $appointment->user_id;
     }
 
     /**
@@ -65,6 +65,11 @@ class AppointmentPolicy
     }
 
     public function cancel(User $user, Appointment $appointment)
+    {
+        return $user->id === $appointment->user_id;
+    }
+
+    public function reschedule(User $user, Appointment $appointment)
     {
         return $user->id === $appointment->user_id;
     }
