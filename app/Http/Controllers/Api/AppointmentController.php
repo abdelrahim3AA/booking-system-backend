@@ -18,7 +18,6 @@ class AppointmentController extends Controller
     public function index()
     {
         return Appointment::with(['user', 'service'])->get();
-
     }
 
     /**
