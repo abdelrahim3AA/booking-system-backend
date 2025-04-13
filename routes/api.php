@@ -19,3 +19,4 @@ Route::get('/user', function (Request $request) {
 // Include modular route files
 require __DIR__ . '/api/appointments.php';
 require __DIR__ . '/api/services.php';
+

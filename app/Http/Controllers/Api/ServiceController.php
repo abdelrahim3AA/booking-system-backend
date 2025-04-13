@@ -13,7 +13,7 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        $services = Service::all();
+        $services = Service::where('active', true)->get();
         return response()->json($services, 200);
     }
 
@@ -23,10 +23,11 @@ class ServiceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'duration_minutes' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0',
+            'name'              => 'required|string|max:255',
+            'description'       => 'required|string|max:255',
+            'duration_minutes'  => 'required|integer|min:0',
+            'price'             => 'required|numeric|min:0',
+            'active'            => 'required|boolean',
         ]);
 
         $service = Service::create($request->all());

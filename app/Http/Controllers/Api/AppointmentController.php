@@ -3,10 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AppointmentConfirmation;
 use App\Models\Appointment;
+use App\Notifications\AppointmentConfirmed;
+use App\Notifications\AppointmentCreated;
+use App\Notifications\AppointmentRescheduled;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Services\AppointmentService;
+use Illuminate\Support\Facades\Mail;
 
 class AppointmentController extends Controller
 {
@@ -43,6 +48,9 @@ class AppointmentController extends Controller
         }
 
         $appointment = Appointment::create($validated);
+
+        // Notify user about new appointment
+        $appointment->user->notify(new AppointmentCreated($appointment));
 
         return response()->json($appointment, 201);
     }
@@ -134,6 +142,9 @@ class AppointmentController extends Controller
             'end_time' => $request->new_end_time,
         ]);
 
+        // Notify user about rescheduling
+        $appointment->user->notify(new AppointmentRescheduled($appointment)); 
+
         return response()->json([
             'message' => 'Appointment rescheduled successfully.',
             'appointment' => $appointment,
@@ -151,6 +162,26 @@ class AppointmentController extends Controller
         $slots = $this->appointmentService->getAvailableTimeSlots($request->date, $request->service_id);
 
         return response()->json($slots);
+    }
+
+    public function confirm(Appointment $appointment)
+    {
+        // Update appointment status
+        $appointment->update([
+            'status'        => 'confirmed',
+            'confirmed_at'  => now()
+        ]);
+
+        // Send confirmation email
+        Mail::to($appointment->user->email)->send(new AppointmentConfirmation($appointment));
+
+        // Notify user about confirmation the appointment
+        $appointment->user->notify(new AppointmentConfirmed($appointment));
+
+        return response()->json([
+            'message' => 'Appointment confirmed successfully.',
+            'appointment' => $appointment,
+        ]);
     }
 
 

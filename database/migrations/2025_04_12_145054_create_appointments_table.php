@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('service_id')->constrained()->onDelete('cascade');
             $table->dateTime('start_time');
             $table->dateTime('end_time');
-            $table->enum('status', ['booked', 'cancelled', 'completed', 'pending'])->default('booked');
+            $table->enum('status', ['booked', 'cancelled', 'completed', 'pending', 'confirmed'])->default('booked');
             $table->timestamps();
         });
     }
