@@ -15,6 +15,8 @@ class Service extends Model
         'duration_minutes',
         'price',
         'active',
+        'service_provider',
+        'image',
     ];
 
     public function appointments()
@@ -22,5 +24,8 @@ class Service extends Model
         return $this->hasMany(Appointment::class);
     }
 
-
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

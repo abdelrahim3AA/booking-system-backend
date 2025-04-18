@@ -13,7 +13,7 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        $services = Service::where('active', true)->get();
+        $services = Service::with('category')->where('active', true)->get();
         return response()->json($services, 200);
     }
 
@@ -61,6 +61,16 @@ class ServiceController extends Controller
         $service = Service::findOrFail($id);
         $service->delete();
         return response()->json(null, 204);
+    }
+
+    public function getServicesByCategory($categoryId)
+    {
+        $services = Service::with('category')
+            ->where('active', true)
+            ->where('category_id', $categoryId) // Assuming you have a `category_id` field in your `services` table
+            ->get();
+
+        return response()->json($services, 200);
     }
 
 }

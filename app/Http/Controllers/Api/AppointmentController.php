@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Services\AppointmentService;
 use Illuminate\Support\Facades\Mail;
+use App\Models\User;
 
 class AppointmentController extends Controller
 {
@@ -21,6 +22,24 @@ class AppointmentController extends Controller
     public function __construct(AppointmentService $appointmentService)
     {
         $this->appointmentService = $appointmentService;
+    }
+
+    /**
+     * Retrieve all appointments for the logged-in user.
+     */
+    public function getUserAppointments(string $id)
+    {
+        $user = User::where('id', $id)->first();
+
+        // if (!$user) {
+        //     return response()->json(['message' => 'Unauthorized'], 401);
+        // }
+
+        $appointments = Appointment::with(['service', 'user'])
+            ->where('user_id', $user->id)
+            ->get();
+
+        return response()->json($appointments, 200);
     }
     /**
      * Display a listing of the resource.
@@ -143,7 +162,7 @@ class AppointmentController extends Controller
         ]);
 
         // Notify user about rescheduling
-        $appointment->user->notify(new AppointmentRescheduled($appointment)); 
+        $appointment->user->notify(new AppointmentRescheduled($appointment));
 
         return response()->json([
             'message' => 'Appointment rescheduled successfully.',
